@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studi Kasus HPC: Peringatan Dini Banjir</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f4;--fg:#14262b;--mut:#51666b;--card:#fff;--line:#cfdbd8;--acc:#0b6e8a;--hot:#c2410c;--water:#2b7fbf;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b1f;--fg:#e6f0ee;--mut:#9bb0b3;--card:#16272c;--line:#2a4046;--acc:#5cc3df;--hot:#fb923c;--water:#4aa3e0}}
+:root[data-theme="dark"]{--bg:#0f1b1f;--fg:#e6f0ee;--mut:#9bb0b3;--card:#16272c;--line:#2a4046;--acc:#5cc3df;--hot:#fb923c;--water:#4aa3e0}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 "Public Sans",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 18px 56px}
+h1,h2{font-family:Fraunces,Georgia,serif;line-height:1.15;margin:0 0 .5em}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:800}
+h2{font-size:1.5rem;margin-top:2.2em}
+.lead{color:var(--mut);font-size:1.08rem;max-width:62ch}
+section p{max-width:68ch}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+.flow div{border-left:3px solid var(--acc);padding:4px 12px;background:var(--card)}
+.flow b{display:block}
+.flow span{color:var(--mut);font-size:.9rem}
+.lab{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;margin-top:14px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+label{display:block;font-weight:600;font-size:.92rem}
+label output{color:var(--acc);float:right}
+input[type=range]{width:100%;accent-color:var(--acc)}
+canvas{width:100%;height:auto;border-radius:6px;display:block;background:#1d3a2a;image-rendering:pixelated}
+button{font:inherit;font-weight:600;border:0;border-radius:6px;padding:8px 16px;background:var(--acc);color:#fff;cursor:pointer;margin-right:8px}
+button.alt{background:transparent;color:var(--fg);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+.stat{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0}
+.stat div{min-width:120px}
+.stat b{display:block;font-size:1.35rem;font-family:Fraunces,serif}
+.stat span{color:var(--mut);font-size:.85rem}
+#alert{font-weight:600;padding:8px 12px;border-radius:6px;background:var(--line);margin:8px 0}
+#alert.warn{background:var(--hot);color:#fff}
+.bars{display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:10px}
+.bars div{flex:1;background:var(--acc);border-radius:4px 4px 0 0;position:relative;min-height:2px}
+.bars div.on{background:var(--hot)}
+.bars small{position:absolute;bottom:-20px;left:0;right:0;text-align:center;color:var(--mut);font-size:.75rem}
+.bars{margin-bottom:26px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;font-size:.95rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Peringatan dini banjir dengan High-Performance Computing</h1>
+<p class="lead">Studi kasus dari materi “Bridging Global Infrastructure to Address Local Challenges with HPC”: bagaimana komputasi tingkat tinggi membantu daerah rawan banjir memprediksi genangan lebih cepat.</p>
+
+<section>
+<h2>Latar belakang</h2>
+<p>Sebuah kabupaten di tepi sungai besar hampir setiap musim hujan mengalami banjir. Pemerintah daerah sudah memasang sensor curah hujan (IoT) dan menerima citra satelit, tetapi data mentah itu belum menjadi keputusan: simulasi banjir resolusi tinggi di laptop biasa butuh berhari-hari, padahal peringatan harus keluar dalam hitungan jam.</p>
+<h2>Rumusan masalah</h2>
+<p>Bagaimana mempercepat simulasi genangan banjir agar hasilnya tersedia sebelum air tiba, tanpa menurunkan resolusi peta?</p>
+
+<h2>Solusi: alur data menuju keputusan</h2>
+<div class="flow">
+<div><b>1. Pengumpulan</b><span>Sensor IoT, satelit, drone</span></div>
+<div><b>2. Pra-proses</b><span>Bersihkan dan gabungkan data (Python, Linux)</span></div>
+<div><b>3. Simulasi paralel</b><span>Bagi peta jadi petak, hitung di banyak core/GPU</span></div>
+<div><b>4. Peringatan</b><span>Peta risiko dan pesan ke warga</span></div>
+</div>
+<p>Inti HPC ada di langkah 3: peta dibagi menjadi jutaan petak, dan tiap petak dihitung bersamaan oleh core CPU atau GPU yang berbeda. Kinerjanya diukur dalam FLOPS, yaitu jumlah operasi desimal per detik.</p>
+</section>
+
+<section>
+<h2>Simulasi 1: penyebaran genangan</h2>
+<p>Model sederhana: air hujan turun di tiap petak lalu mengalir ke petak tetangga yang lebih rendah. Naikkan curah hujan dan lihat petak mana yang tergenang.</p>
+<div class="lab">
+<div class="row">
+<label>Curah hujan <output id="o1">sedang</output><input id="rain" type="range" min="1" max="5" value="3"></label>
+</div>
+<p><button id="go">Mulai</button><button id="rs" class="alt">Atur ulang</button></p>
+<canvas id="cv" width="96" height="60" aria-label="Peta simulasi genangan banjir"></canvas>
+<div class="stat"><div><b id="s1">0</b><span>petak tergenang</span></div><div><b id="s2">0</b><span>petak bahaya (dalam)</span></div></div>
+<div id="alert" role="status">Tekan Mulai untuk menjalankan simulasi.</div>
+</div>
+
+<h2>Simulasi 2: berapa lama jika dihitung paralel?</h2>
+<p>Waktu komputasi diperkirakan dengan hukum Amdahl: <code>T(n) = T1 × ((1 − p) + p / n)</code>, dengan <code>p</code> bagian program yang bisa diparalelkan dan <code>n</code> jumlah core. Asumsi: 10.000 langkah waktu, 200 FLOP per petak per langkah, 50 GFLOPS per core.</p>
+<div class="lab">
+<div class="row">
+<label>Resolusi peta <output id="o2"></output><input id="res" type="range" min="0" max="4" value="2"></label>
+<label>Jumlah core <output id="o3"></output><input id="cores" type="range" min="0" max="7" value="4"></label>
+<label>Bagian paralel (p) <output id="o4"></output><input id="par" type="range" min="50" max="99" value="95"></label>
+</div>
+<div class="stat">
+<div><b id="t1">-</b><span>1 core</span></div>
+<div><b id="tn">-</b><span>dengan n core</span></div>
+<div><b id="sp">-</b><span>percepatan</span></div>
+</div>
+<div class="bars" id="bars" aria-label="Percepatan menurut jumlah core"></div>
+<p id="msg" style="color:var(--mut);margin:0"></p>
+</div>
+</section>
+
+<section>
+<h2>Peran mahasiswa informatika</h2>
+<div class="tw"><table>
+<tr><th>Tingkat</th><th>Peran dalam kasus ini</th></tr>
+<tr><td>Learner</td><td>Mempelajari dasar komputasi, Linux, dan konsep paralelisme.</td></tr>
+<tr><td>Practitioner</td><td>Menulis dan menjalankan kode simulasi di cluster atau GPU, dengan pemrograman paralel.</td></tr>
+<tr><td>Facilitator</td><td>Membangun dan merawat lingkungan komputasi (cloud, cluster) serta melatih pengguna lain.</td></tr>
+<tr><td>Innovator</td><td>Mengembangkan aplikasi peringatan dini yang dipakai warga dan BPBD.</td></tr>
+</table></div>
+
+<h2>Kesimpulan</h2>
+<p>HPC mengubah data mentah (hujan, citra, elevasi) menjadi wawasan yang tepat waktu. Dengan membagi pekerjaan ke banyak core, simulasi yang semula berhari-hari bisa selesai dalam jam, sehingga infrastruktur global dapat menjawab masalah lokal. Perhatikan juga batasnya: percepatan terbatas oleh bagian program yang tetap serial, jadi menambah core tidak selalu sebanding dengan hasilnya.</p>
+</section>
+</main>
+
+<script>
+// ---------- Simulasi 1: genangan ----------
+const W=96,H=60,N=W*H,cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+let ter,wat,run=false,tick=0;
+const rainNames=['ringan','sedang-ringan','sedang','lebat','sangat lebat'];
+function init(){
+  ter=new Float32Array(N);wat=new Float32Array(N);tick=0;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const rx=W/2+10*Math.sin(y/9);
+    const d=(x-rx);
+    ter[y*W+x]=12*(1-y/H)+2*Math.sin(x/7)+Math.random()*.4+6*(1-Math.exp(-d*d/60))-5;
+  }
+  draw();stats();
+}
+function step(){
+  const r=+document.getElementById('rain').value*0.012,dw=new Float32Array(N);
+  for(let i=0;i<N;i++){wat[i]+=r;}
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x,t=ter[i]+wat[i];
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+dx,ny=y+dy;if(nx<0||nx>=W||ny<0||ny>=H)continue;
+      const j=ny*W+nx,tj=ter[j]+wat[j];
+      if(t>tj){const f=Math.min(wat[i]/4,(t-tj)*0.12);dw[i]-=f;dw[j]+=f;}
+    }
+  }
+  for(let i=0;i<N;i++)wat[i]=Math.max(0,wat[i]+dw[i]);
+  for(let x=0;x<W;x++)wat[(H-1)*W+x]*=0.5; // air keluar di hilir
+  tick++;
+}
+function draw(){
+  const im=ctx.createImageData(W,H);
+  for(let i=0;i<N;i++){
+    const g=60+ter[i]*5,d=wat[i],p=i*4;
+    let r=g*0.5,gg=g+40,b=g*0.4;
+    if(d>0.3){r=43;gg=127;b=191;}
+    if(d>1.2){r=194;gg=65;b=12;}
+    im.data[p]=r;im.data[p+1]=gg;im.data[p+2]=b;im.data[p+3]=255;
+  }
+  ctx.putImageData(im,0,0);
+}
+function stats(){
+  let a=0,b=0;for(let i=0;i<N;i++){if(wat[i]>0.3)a++;if(wat[i]>1.2)b++;}
+  document.getElementById('s1').textContent=a;document.getElementById('s2').textContent=b;
+  const el=document.getElementById('alert');
+  if(tick===0){el.textContent='Tekan Mulai untuk menjalankan simulasi.';el.className='';return}
+  const pct=a/N*100;
+  if(b>20){el.textContent='Siaga: genangan dalam terdeteksi. Evakuasi warga di zona merah.';el.className='warn'}
+  else if(pct>8){el.textContent='Waspada: genangan meluas di sekitar sungai.';el.className='warn'}
+  else{el.textContent='Aman: genangan masih terbatas.';el.className=''}
+}
+function loop(){
+  if(!run)return;
+  for(let k=0;k<3;k++)step();
+  draw();stats();
+  requestAnimationFrame(loop);
+}
+document.getElementById('go').onclick=function(){
+  run=!run;this.textContent=run?'Jeda':'Lanjut';if(run)loop();
+};
+document.getElementById('rs').onclick=()=>{run=false;document.getElementById('go').textContent='Mulai';init();};
+document.getElementById('rain').oninput=e=>{document.getElementById('o1').textContent=rainNames[e.target.value-1];};
+init();
+
+// ---------- Simulasi 2: hukum Amdahl ----------
+const cellsM=[0.1,0.4,1.6,6.4,25.6],coreOpts=[1,2,4,8,16,32,64,128];
+const STEPS=1e4,FLOP=200,CORE=50e9;
+function fmt(s){
+  if(s<60)return s.toFixed(0)+' detik';
+  if(s<3600)return (s/60).toFixed(1)+' menit';
+  if(s<86400)return (s/3600).toFixed(1)+' jam';
+  return (s/86400).toFixed(1)+' hari';
+}
+function calc(){
+  const res=+document.getElementById('res').value,ci=+document.getElementById('cores').value,p=+document.getElementById('par').value/100;
+  const n=coreOpts[ci],c=cellsM[res]*1e6,T1=c*STEPS*FLOP/CORE;
+  const sp=n=>1/((1-p)+p/n),Tn=T1/sp(n);
+  document.getElementById('o2').textContent=cellsM[res]+' juta petak';
+  document.getElementById('o3').textContent=n+' core';
+  document.getElementById('o4').textContent=(p*100).toFixed(0)+'%';
+  document.getElementById('t1').textContent=fmt(T1);
+  document.getElementById('tn').textContent=fmt(Tn);
+  document.getElementById('sp').textContent=sp(n).toFixed(1)+'×';
+  const mx=sp(128),bars=document.getElementById('bars');bars.innerHTML='';
+  coreOpts.forEach(k=>{
+    const d=document.createElement('div');d.style.height=(sp(k)/mx*100)+'%';
+    if(k===n)d.className='on';
+    d.innerHTML='<small>'+k+'</small>';bars.appendChild(d);
+  });
+  document.getElementById('msg').textContent=Tn<6*3600
+    ?'Hasil siap kurang dari 6 jam, cukup cepat untuk peringatan dini.'
+    :'Terlalu lambat untuk peringatan dini (target: di bawah 6 jam). Tambah core atau turunkan resolusi.';
+}
+['res','cores','par'].forEach(id=>document.getElementById(id).oninput=calc);
+calc();
+</script>
+</body>
+</html>
